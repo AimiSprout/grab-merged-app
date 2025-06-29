@@ -1,23 +1,16 @@
 // routes/week04.js
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const { Passenger, Driver, Ride, Rating } = require('../models');
 
-// Use JSON middleware
-router.use(express.json());
-
-// Connect to MongoDB (reuse MONGODB_URI from .env)
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("✅ Week04: MongoDB connected");
-}).catch((err) => {
-  console.error("❌ Week04: MongoDB connection error:", err);
+// ✅ Test route to confirm browser access
+router.get('/', (req, res) => {
+  res.send('✅ Week04 route is working on Azure!');
 });
 
-// Passenger Registration
+// --------------------- Passenger Routes ---------------------
+
+// Register Passenger
 router.post('/passengers/register', async (req, res) => {
   try {
     const passenger = await Passenger.create(req.body);
@@ -34,7 +27,7 @@ router.post('/auth/passenger', async (req, res) => {
   found ? res.status(200).json(found) : res.status(401).json({ error: 'Unauthorized' });
 });
 
-// View Passenger's Bookings
+// View Passenger Bookings
 router.get('/passengers/:id/bookings', async (req, res) => {
   try {
     const bookings = await Ride.find({ passengerId: req.params.id });
@@ -44,7 +37,9 @@ router.get('/passengers/:id/bookings', async (req, res) => {
   }
 });
 
-// Book Ride
+// --------------------- Ride Routes ---------------------
+
+// Book a Ride
 router.post('/rides', async (req, res) => {
   try {
     const ride = await Ride.create({ ...req.body, status: 'booked' });
@@ -69,23 +64,6 @@ router.post('/rides/:id/rating', async (req, res) => {
   } else {
     res.status(400).json({ error: 'Ride not found' });
   }
-});
-
-// Driver Registration
-router.post('/drivers/register', async (req, res) => {
-  try {
-    const driver = await Driver.create({ ...req.body, earnings: 0 });
-    res.status(201).json(driver);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Driver Login
-router.post('/auth/driver', async (req, res) => {
-  const { email, password } = req.body;
-  const found = await Driver.findOne({ email, password });
-  found ? res.status(200).json(found) : res.status(401).json({ error: 'Unauthorized' });
 });
 
 // Accept Ride
@@ -117,27 +95,49 @@ router.patch('/rides/:id/complete', async (req, res) => {
   }
 });
 
+// --------------------- Driver Routes ---------------------
+
+// Register Driver
+router.post('/drivers/register', async (req, res) => {
+  try {
+    const driver = await Driver.create({ ...req.body, earnings: 0 });
+    res.status(201).json(driver);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Driver Login
+router.post('/auth/driver', async (req, res) => {
+  const { email, password } = req.body;
+  const found = await Driver.findOne({ email, password });
+  found ? res.status(200).json(found) : res.status(401).json({ error: 'Unauthorized' });
+});
+
 // View Driver Earnings
 router.get('/drivers/:id/earnings', async (req, res) => {
   const driver = await Driver.findById(req.params.id);
-  driver ? res.status(200).json({ earnings: driver.earnings }) :
-          res.status(404).json({ error: 'Driver not found' });
+  driver
+    ? res.status(200).json({ earnings: driver.earnings })
+    : res.status(404).json({ error: 'Driver not found' });
 });
 
-// Admin: View Users
+// --------------------- Admin Routes ---------------------
+
+// View all users
 router.get('/admin/users', async (req, res) => {
   const passengers = await Passenger.find();
   const drivers = await Driver.find();
   res.status(200).json({ passengers, drivers });
 });
 
-// Admin: View All Bookings
+// View all bookings
 router.get('/admin/bookings', async (req, res) => {
   const rides = await Ride.find();
   res.status(200).json(rides);
 });
 
-// Admin: Generate Reports
+// Generate report
 router.get('/admin/reports', async (req, res) => {
   const passengers = await Passenger.countDocuments();
   const drivers = await Driver.countDocuments();
@@ -145,6 +145,7 @@ router.get('/admin/reports', async (req, res) => {
   const earnings = await Driver.find().then(list =>
     list.reduce((sum, d) => sum + (d.earnings || 0), 0)
   );
+
   res.status(200).json({
     totalPassengers: passengers,
     totalDrivers: drivers,
