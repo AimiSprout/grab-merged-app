@@ -23,12 +23,11 @@ app.use(express.json()); // For parsing JSON in POST requests
 const week04Routes = require('./routes/week04');
 app.use('/week04', week04Routes);
 
-// Optional (later):
 const week06Routes = require('./routes/week06');
 app.use('/week06', week06Routes);
 
-// const week07Routes = require('./routes/week07');
-// app.use('/week07', week07Routes);
+const week07Routes = require('./routes/week07');
+app.use('/week07', week07Routes);
 
 // Root route
 app.get('/', (req, res) => {
