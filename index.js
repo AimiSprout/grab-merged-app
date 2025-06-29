@@ -1,40 +1,27 @@
-// index.js
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const path = require('path');
 
-dotenv.config(); // Load environment variables from .env
-
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected from index.js'))
-.catch((err) => console.error('❌ MongoDB connection error:', err));
+app.use(express.json());
+app.use(express.static('public'));
 
-// Middlewares
-app.use(express.json()); // For parsing JSON in POST requests
-
-// ROUTES
-const week04Routes = require('./routes/week04');
-app.use('/week04', week04Routes);
-
-const week06Routes = require('./routes/week06');
-app.use('/week06', week06Routes);
-
-const week07Routes = require('./routes/week07');
-app.use('/week07', week07Routes);
-
-// Root route
-app.get('/', (req, res) => {
-  res.send('🚀 Welcome to Grab Merged App!');
+mongoose.connect(process.env.MONGODB_URI).then(() => {
+  console.log("✅ MongoDB connected from index.js");
 });
 
-// Start server
+app.use('/week04', require('./routes/week04'));
+app.use('/week06', require('./routes/week06'));
+app.use('/week07', require('./routes/week07'));
+
+app.get('/', (req, res) => {
+  res.send("🚀 Welcome to Grab Merged App!");
+});
+
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
 });
