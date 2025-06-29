@@ -4,15 +4,12 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 dotenv.config();
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
 app.use(express.json());
 app.use(express.static('public'));
 
-// MongoDB connection with error handling
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -22,10 +19,9 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .catch((err) => {
   console.error("❌ MongoDB connection failed:", err.message);
-  process.exit(1); // Exit to show Azure the app failed to boot properly
+  process.exit(1);
 });
 
-// Routes
 app.use('/week04', require('./routes/week04'));
 app.use('/week06', require('./routes/week06'));
 app.use('/week07', require('./routes/week07'));
@@ -34,7 +30,6 @@ app.get('/', (req, res) => {
   res.send("🚀 Welcome to Grab Merged App!");
 });
 
-// Start server
 app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://localhost:${port}`);
+  console.log(`🚀 Server running at http://localhost:${port}`);
 });
