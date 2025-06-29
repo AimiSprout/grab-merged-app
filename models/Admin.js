@@ -1,13 +1,14 @@
+// routes/week04.js
 const express = require('express');
 const router = express.Router();
-const { Passenger, Driver, Ride, Rating, Admin } = require('../models'); // ✅ include Admin model
+const { Passenger, Driver, Ride, Rating } = require('../models');
 
-// ✅ Test route
+// ✅ Test route to confirm browser access
 router.get('/', (req, res) => {
   res.send('✅ Week04 route is working on Azure!');
 });
 
-// --------------------- PASSENGER Routes ---------------------
+// --------------------- Passenger Routes ---------------------
 
 // Register Passenger
 router.post('/passengers/register', async (req, res) => {
@@ -36,7 +37,7 @@ router.get('/passengers/:id/bookings', async (req, res) => {
   }
 });
 
-// --------------------- RIDE Routes ---------------------
+// --------------------- Ride Routes ---------------------
 
 // Book a Ride
 router.post('/rides', async (req, res) => {
@@ -65,7 +66,7 @@ router.post('/rides/:id/rating', async (req, res) => {
   }
 });
 
-// Accept Ride (by driver)
+// Accept Ride
 router.patch('/rides/:id/accept', async (req, res) => {
   const ride = await Ride.findById(req.params.id);
   if (ride) {
@@ -77,7 +78,7 @@ router.patch('/rides/:id/accept', async (req, res) => {
   }
 });
 
-// Complete Ride (by driver)
+// Complete Ride
 router.patch('/rides/:id/complete', async (req, res) => {
   const ride = await Ride.findById(req.params.id);
   if (ride) {
@@ -94,7 +95,7 @@ router.patch('/rides/:id/complete', async (req, res) => {
   }
 });
 
-// --------------------- DRIVER Routes ---------------------
+// --------------------- Driver Routes ---------------------
 
 // Register Driver
 router.post('/drivers/register', async (req, res) => {
@@ -121,14 +122,7 @@ router.get('/drivers/:id/earnings', async (req, res) => {
     : res.status(404).json({ error: 'Driver not found' });
 });
 
-// --------------------- ADMIN Routes ---------------------
-
-// Admin Login
-router.post('/auth/admin', async (req, res) => {
-  const { email, password } = req.body;
-  const found = await Admin.findOne({ email, password });
-  found ? res.status(200).json(found) : res.status(401).json({ error: 'Unauthorized' });
-});
+// --------------------- Admin Routes ---------------------
 
 // View all users
 router.get('/admin/users', async (req, res) => {
@@ -143,7 +137,7 @@ router.get('/admin/bookings', async (req, res) => {
   res.status(200).json(rides);
 });
 
-// Generate system report
+// Generate report
 router.get('/admin/reports', async (req, res) => {
   const passengers = await Passenger.countDocuments();
   const drivers = await Driver.countDocuments();
